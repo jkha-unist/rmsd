@@ -1193,6 +1193,9 @@ See https://github.com/charnley/rmsd for citation information
 
     # Admin
     parser.add_argument('-v', '--version', action='version', version=version_msg)
+    
+    # Translation
+    parser.add_argument('--no-translation', action="store_true", help="don't translate the structures to match the centers of them to origin if true, rotation is overriden to None")
 
     # Rotation
     parser.add_argument('-r', '--rotation', action='store', default="kabsch", help='select rotation method. "kabsch" (default), "quaternion" or "none"', metavar="METHOD")
@@ -1231,7 +1234,9 @@ See https://github.com/charnley/rmsd for citation information
             args.format = filename_suffix2 + "." + filename_suffix
         else:
             args.format = filename_suffix
-
+    
+    if args.no_translation:
+        args.rotation = "none"
 
     p_all_atoms, p_all = get_coordinates(args.structure_a, args.format)
     q_all_atoms, q_all = get_coordinates(args.structure_b, args.format)
@@ -1305,8 +1310,9 @@ https://github.com/charnley/rmsd for further examples.
     # http://en.wikipedia.org/wiki/Centroid
     p_cent = centroid(p_coord)
     q_cent = centroid(q_coord)
-    p_coord -= p_cent
-    q_coord -= q_cent
+    if not args.no_translation:
+        p_coord -= p_cent
+        q_coord -= q_cent
 
 
     # set rotation method
